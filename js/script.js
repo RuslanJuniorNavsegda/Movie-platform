@@ -6,7 +6,12 @@ const movies = [
     genre: "Фантастика",
     rating: 7.8,
     description: "Продолжение эпической саги Джеймса Кэмерона",
-    poster: "https://i1.wp.com/wallpapercave.com/wp/wp11794335.jpg",
+    poster:
+      "https://avatars.mds.yandex.net/get-kinopoisk-image/6201401/2e51cb8b-fd51-4166-84a2-63559733baac/1920x",
+    theaters: [
+      { name: "Кинотеатр Prime", time: "18:00", price: 450 },
+      { name: "IMAX Cinema", time: "20:30", price: 600 },
+    ],
   },
   {
     title: "Оппенгеймер",
@@ -14,7 +19,11 @@ const movies = [
     genre: "Драма",
     rating: 8.5,
     description: "История создания атомной бомбы",
-    poster: "https://i.ytimg.com/vi/pTt_ox7AgQI/maxresdefault.jpg",
+    poster: "https://i.playground.ru/e/bG0XtWgzN8dkU7_ET86w9g.png",
+    theaters: [
+      { name: "АртКино", time: "19:15", price: 400 },
+      { name: "Космос Cinema", time: "21:45", price: 550 },
+    ],
   },
   {
     title: "Крушение",
@@ -23,7 +32,11 @@ const movies = [
     rating: 6.9,
     description: "Захватывающая история выживания после авиакатастрофы",
     poster:
-      "https://avatars.mds.yandex.net/i?id=25adcf170b93652b458a8160861c2bab_l-9042901-images-thumbs&n=13",
+      "https://static.okko.tv/images/v4/0bdcf83e-376b-43ca-a262-bb190b16aa91",
+    theaters: [
+      { name: "Синема Парк", time: "17:30", price: 350 },
+      { name: "Киномакс", time: "20:00", price: 480 },
+    ],
   },
 ];
 
@@ -81,6 +94,56 @@ function renderMovies(moviesArray) {
   });
 }
 
+// Генерация билетов
+function renderTickets() {
+  const container = document.getElementById("ticketsContainer");
+  container.innerHTML = "";
+
+  movies.forEach((movie) => {
+    if (movie.theaters && movie.theaters.length > 0) {
+      movie.theaters.forEach((theater) => {
+        const ticket = document.createElement("div");
+        ticket.className = "ticket-card";
+        ticket.innerHTML = `
+                    <div class="ticket-info">
+                        <h3>${movie.title}</h3>
+                        <p class="ticket-theater">${theater.name}</p>
+                        <p class="ticket-time">Начало: ${theater.time}</p>
+                        <p class="ticket-price">${theater.price} ₽</p>
+                    </div>
+                    <button class="buy-button">Купить билет</button>
+                `;
+
+        ticket.querySelector(".buy-button").addEventListener("click", () => {
+          handleTicketPurchase(movie.title, theater);
+        });
+
+        container.appendChild(ticket);
+      });
+    }
+  });
+}
+
+// Обработка покупки билетов
+function handleTicketPurchase(movieTitle, theater) {
+  const confirmation = confirm(
+    `Подтвердите покупку:\n
+        Фильм: ${movieTitle}
+        Кинотеатр: ${theater.name}
+        Время: ${theater.time}
+        Цена: ${theater.price} ₽
+        
+        Продолжить оплату?`
+  );
+
+  if (confirmation) {
+    window.open(
+      `https://cinema-tickets.com/buy?movie=${encodeURIComponent(movieTitle)}`,
+      "_blank"
+    );
+  }
+}
+
 // Модальное окно
 function showModal(movie) {
   const modal = document.getElementById("movieModal");
@@ -93,6 +156,21 @@ function showModal(movie) {
         <div class="modal-details">
             <p><strong>Жанр:</strong> ${movie.genre}</p>
             <p><strong>Рейтинг:</strong> ${movie.rating}/10</p>
+            ${
+              movie.theaters
+                ? `
+            <div class="modal-schedule">
+                <h4>Ближайшие сеансы:</h4>
+                ${movie.theaters
+                  .map(
+                    (theater) => `
+                    <p>${theater.name} - ${theater.time} (${theater.price} ₽)</p>
+                `
+                  )
+                  .join("")}
+            </div>`
+                : ""
+            }
         </div>
     `;
 
@@ -114,4 +192,5 @@ window.addEventListener("click", (e) => {
 document.addEventListener("DOMContentLoaded", () => {
   createGenreFilters();
   renderMovies(movies);
+  renderTickets();
 });
